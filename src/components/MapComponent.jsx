@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, useMapEvents, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -13,15 +13,28 @@ const MapComponent = () => {
   // Mapbox TileLayer для отображения карты
   const mapboxLayerUrl = `https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=${mapboxToken}`;
 
+  // Загрузка маркеров из localStorage при монтировании компонента
+  useEffect(() => {
+    const savedMarkers = localStorage.getItem('markers');
+    if (savedMarkers) {
+      setMarkers(JSON.parse(savedMarkers));
+    }
+  }, []);
+
+  // Сохранение маркеров в localStorage
+  const saveMarkersToLocalStorage = (updatedMarkers) => {
+    localStorage.setItem('markers', JSON.stringify(updatedMarkers));
+  };
+
   // Обработчик кликов по карте для добавления маркеров
   const MapClickHandler = () => {
     useMapEvents({
       click: (e) => {
         const { lat, lng } = e.latlng;
-        setMarkers((currentMarkers) => [
-          ...currentMarkers,
-          { latitude: lat, longitude: lng, description: "" }, // добавляем описание для маркера
-        ]);
+        const newMarker = { latitude: lat, longitude: lng, description: "" };
+        const updatedMarkers = [...markers, newMarker];
+        setMarkers(updatedMarkers);
+        saveMarkersToLocalStorage(updatedMarkers); // сохраняем маркеры в localStorage
       },
     });
     return null;
@@ -37,6 +50,7 @@ const MapComponent = () => {
     const updatedMarkers = [...markers];
     updatedMarkers[index].description = description; // сохраняем описание в маркер
     setMarkers(updatedMarkers);
+    saveMarkersToLocalStorage(updatedMarkers); // сохраняем обновленные маркеры в localStorage
     setDescription(""); // очищаем поле ввода после сохранения
   };
 
