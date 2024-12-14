@@ -4,16 +4,15 @@ import 'leaflet/dist/leaflet.css';
 
 const MapComponent = () => {
   const [markers, setMarkers] = useState([]);
-  const [description, setDescription] = useState(""); // состояние для ввода описания
-  const position = [51.505, -0.09]; // Центр карты
+  const [description, setDescription] = useState(""); 
+  const position = [51.505, -0.09]; 
 
-  // Устанавливаем Mapbox access token
+  // Mapbox access token
   const mapboxToken = 'pk.eyJ1IjoiYW5nZWxsbCIsImEiOiJjbTRtbnR3OHEwYW9yMmpxdWdzcTd2M2RiIn0.WNUAUYs2yRQgCHl2St-Mng';
 
-  // Mapbox TileLayer для отображения карты
+  // Mapbox TileLayer 
   const mapboxLayerUrl = `https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=${mapboxToken}`;
 
-  // Загрузка маркеров из localStorage при монтировании компонента
   useEffect(() => {
     const savedMarkers = localStorage.getItem('markers');
     if (savedMarkers) {
@@ -21,12 +20,10 @@ const MapComponent = () => {
     }
   }, []);
 
-  // Сохранение маркеров в localStorage
   const saveMarkersToLocalStorage = (updatedMarkers) => {
     localStorage.setItem('markers', JSON.stringify(updatedMarkers));
   };
 
-  // Обработчик кликов по карте для добавления маркеров
   const MapClickHandler = () => {
     useMapEvents({
       click: (e) => {
@@ -34,24 +31,22 @@ const MapComponent = () => {
         const newMarker = { latitude: lat, longitude: lng, description: "" };
         const updatedMarkers = [...markers, newMarker];
         setMarkers(updatedMarkers);
-        saveMarkersToLocalStorage(updatedMarkers); // сохраняем маркеры в localStorage
+        saveMarkersToLocalStorage(updatedMarkers); 
       },
     });
     return null;
   };
 
-  // Обработчик изменения текста в поле ввода
   const handleDescriptionChange = (e) => {
     setDescription(e.target.value);
   };
 
-  // Обработчик сохранения описания в маркер
   const handleSaveDescription = (index) => {
     const updatedMarkers = [...markers];
-    updatedMarkers[index].description = description; // сохраняем описание в маркер
+    updatedMarkers[index].description = description; 
     setMarkers(updatedMarkers);
-    saveMarkersToLocalStorage(updatedMarkers); // сохраняем обновленные маркеры в localStorage
-    setDescription(""); // очищаем поле ввода после сохранения
+    saveMarkersToLocalStorage(updatedMarkers); 
+    setDescription(""); 
   };
 
   return (
@@ -60,7 +55,6 @@ const MapComponent = () => {
         <TileLayer url={mapboxLayerUrl} attribution='&copy; <a href="https://www.mapbox.com/">Mapbox</a> contributors' />
         <MapClickHandler />
         
-        {/* Добавление маркеров на карту */}
         {markers.map((marker, index) => (
           <Marker key={index} position={[marker.latitude, marker.longitude]}>
             <Popup>
@@ -68,17 +62,15 @@ const MapComponent = () => {
                 <h3>Marker {index + 1}</h3>
                 <p>Coordinates: {marker.latitude}, {marker.longitude}</p>
                 
-                {/* Поле ввода для описания маркера */}
                 <textarea
                   placeholder="Add description"
                   value={description}
-                  onChange={handleDescriptionChange} // обновляем состояние описания
+                  onChange={handleDescriptionChange} 
                 />
                 
-                {/* Кнопка для сохранения описания */}
+              
                 <button onClick={() => handleSaveDescription(index)}>Save Description</button>
                 
-                {/* Показываем описание, если оно есть */}
                 {marker.description && <p><strong>Description:</strong> {marker.description}</p>}
               </div>
             </Popup>
